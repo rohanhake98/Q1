@@ -54,6 +54,7 @@ export default function Dashboard() {
 
   const [jobForm, setJobForm] = useState({
     title: '',
+    company_name: '',
     company_slug: '',
     job_slug: '',
     experience: '',
@@ -221,14 +222,8 @@ export default function Dashboard() {
     setSuccessMsg(null);
     setErrorMsg(null);
 
-    if (!jobForm.company_slug) {
-      setErrorMsg('You must select or create a company first before adding a job.');
-      setSubmitting(false);
-      return;
-    }
-
-    const selectedCompany = companies.find(c => c.slug === jobForm.company_slug);
-    const jobSlug = jobForm.job_slug || `${generateSlug(jobForm.title)}-${generateSlug(selectedCompany?.name || '')}`;
+    const companySlug = jobForm.company_slug || generateSlug(jobForm.company_name);
+    const jobSlug = jobForm.job_slug || `${generateSlug(jobForm.title)}-${companySlug}`;
     const tagsArray = jobForm.tags
       .split(',')
       .map(tag => tag.trim())
@@ -237,8 +232,8 @@ export default function Dashboard() {
     try {
       const { error } = await supabase.from('jobs').insert([{
         title: jobForm.title,
-        company_name: selectedCompany?.name || 'Unknown',
-        company_slug: jobForm.company_slug,
+        company_name: jobForm.company_name,
+        company_slug: companySlug,
         job_slug: jobSlug,
         experience: jobForm.experience || null,
         location: jobForm.location || 'Remote',
@@ -260,6 +255,8 @@ export default function Dashboard() {
       setJobForm(prev => ({
         ...prev,
         title: '',
+        company_name: '',
+        company_slug: '',
         job_slug: '',
         description: '',
         apply_url: '',
@@ -476,36 +473,34 @@ export default function Dashboard() {
                 <Icon icon="lucide:plus" className="text-primary" />
                 Add New Job Listing
               </h2>
-              {loadingCompanies ? (
-                <div className="text-xs text-muted-foreground animate-pulse">Loading companies list...</div>
-              ) : companies.length === 0 ? (
-                <div className="bg-amber-500/10 border border-amber-500/20 text-amber-600 rounded-lg p-4 text-xs">
-                  <strong>Warning:</strong> No companies exist in your database. You must select or 
-                  <button 
-                    type="button" 
-                    onClick={() => setActiveTab('company')}
-                    className="font-bold underline ml-1 hover:text-amber-700 cursor-pointer text-left"
-                  >
-                    Create a Company Profile
-                  </button> first before posting a job.
-                </div>
-              ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-mono font-semibold uppercase text-muted-foreground mb-1.5">
-                    Select Company *
+                    Company Name *
                   </label>
-                  <select
+                  <input
+                    type="text"
                     required
+                    placeholder="e.g. Stripe, OpenAI, Google"
+                    value={jobForm.company_name}
+                    onChange={(e) => setJobForm(prev => ({ ...prev, company_name: e.target.value }))}
+                    className="w-full bg-background border border-border/80 focus:border-primary focus:ring-1 focus:ring-primary outline-none rounded-lg py-2 px-3 text-sm text-foreground"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono font-semibold uppercase text-muted-foreground mb-1.5">
+                    Company Slug (Auto-generated if empty)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. stripe"
                     value={jobForm.company_slug}
                     onChange={(e) => setJobForm(prev => ({ ...prev, company_slug: e.target.value }))}
-                    className="w-full bg-background border border-border/80 outline-none rounded-lg py-2 px-3 text-sm text-foreground focus:border-primary focus:ring-1 focus:ring-primary"
-                  >
-                    {companies.map(c => (
-                      <option key={c.id} value={c.slug}>{c.name}</option>
-                    ))}
-                  </select>
+                    className="w-full bg-background border border-border/80 focus:border-primary focus:ring-1 focus:ring-primary outline-none rounded-lg py-2 px-3 text-sm text-foreground"
+                  />
                 </div>
-              )}
+              </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
