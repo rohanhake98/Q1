@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Icon } from '@iconify/react';
 import { Link } from 'react-router-dom';
+import Navbar from '../components/navbar/Navbar';
+import Footer from '../components/footer/Footer';
 
 // --- TYPES & INTERFACES ---
 
@@ -22,63 +24,6 @@ interface FaqItem {
 }
 
 // --- HELPER SUB-COMPONENTS ---
-
-export const Navigation: React.FC<{
-  darkMode: boolean;
-  onToggleTheme: () => void;
-}> = ({ darkMode, onToggleTheme }) => {
-  return (
-    <nav className="bg-background text-foreground border-b border-border/80 backdrop-blur-md saturate-150 sticky top-0 z-50 transition-colors duration-300">
-      <div className="max-w-[1180px] mx-auto px-8 py-4 flex items-center justify-between h-[75px]">
-        <Link className="flex items-center gap-[11px] font-semibold text-[19px] tracking-[-0.02em] no-underline text-foreground" to="/">
-          <img
-            alt="Q1clicks logo"
-            width="30"
-            height="30"
-            className="rounded-lg flex-none select-none"
-            src="https://otclick.org/_next/image?url=%2Flogo.png&w=32&q=75"
-          />
-          Q1clicks
-        </Link>
-
-        <div className="flex items-center gap-[30px]">
-          <a href="/#how" className="hidden md:block text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">
-            How it works
-          </a>
-          <Link to="/jobs" className="hidden md:block text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">
-            Jobs/Internship
-          </Link>
-          <a href="/#platforms" className="hidden md:block text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">
-            Platforms
-          </a>
-          <a href="/#pricing" className="hidden md:block text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">
-            Pricing
-          </a>
-          <a href="/#faq" className="hidden md:block text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">
-            FAQ
-          </a>
-
-          <button
-            type="button"
-            onClick={onToggleTheme}
-            aria-label="Switch theme"
-            className="w-[38px] h-[38px] rounded-lg border border-border bg-transparent text-muted-foreground grid place-items-center cursor-pointer transition-colors duration-200 hover:bg-muted"
-          >
-            <Icon icon={darkMode ? "lucide:sun" : "lucide:moon"} className="text-lg" />
-          </button>
-
-          <a
-            className="inline-flex items-center justify-center font-medium tracking-[-0.01em] rounded-lg border cursor-pointer transition-all duration-250 ease-out whitespace-nowrap no-underline bg-foreground text-background border-transparent hover:-translate-y-0.5 hover:shadow-md px-[18px] py-2.5 text-sm gap-2.5"
-            href="/#start"
-          >
-            Start free
-            <Icon icon="lucide:arrow-right" className="text-sm" />
-          </a>
-        </div>
-      </div>
-    </nav>
-  );
-};
 
 const Hero: React.FC<{
   isVideoPlaying: boolean;
@@ -959,75 +904,11 @@ const CTASection: React.FC = () => {
   );
 };
 
-export const Footer: React.FC = () => {
-  return (
-    <footer className="py-14 pb-16 border-t border-border bg-background text-foreground transition-colors duration-300">
-      <div className="max-w-[1180px] mx-auto px-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10">
-        <div>
-          <div className="flex items-center gap-[11px] font-semibold text-[17px] tracking-[-0.02em] text-foreground">
-            <span className="w-[30px] h-[30px] rounded-lg bg-foreground text-background grid place-items-center font-bold text-base font-serif italic">Q</span>
-            Q1clicks
-          </div>
-          <p className="text-muted-foreground text-sm mt-3 max-w-[34ch]">Glass-box autofill. The extension fills; you submit.</p>
-        </div>
 
-        <div>
-          <h4 className="font-mono text-[11px] tracking-[0.14em] uppercase text-muted-foreground/70 font-semibold mb-4">Product</h4>
-          <ul className="flex flex-col gap-2.5">
-            <li><a href="/#how" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">How it works</a></li>
-            <li><a href="/#platforms" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">Platforms</a></li>
-            <li><a href="/#pricing" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">Pricing</a></li>
-            <li><a href="/#faq" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">FAQ</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 className="font-mono text-[11px] tracking-[0.14em] uppercase text-muted-foreground/70 font-semibold mb-4">Autofill by ATS</h4>
-          <ul className="flex flex-col gap-2.5">
-            <li><a href="/#platforms" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">Greenhouse autofill</a></li>
-            <li><a href="/#platforms" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">Lever autofill</a></li>
-            <li><a href="/#platforms" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">Ashby autofill</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 className="font-mono text-[11px] tracking-[0.14em] uppercase text-muted-foreground/70 font-semibold mb-4">Legal</h4>
-          <ul className="flex flex-col gap-2.5">
-            <li><a href="/#" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">Privacy</a></li>
-            <li><a href="/#" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">Terms</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 className="font-mono text-[11px] tracking-[0.14em] uppercase text-muted-foreground/70 font-semibold mb-4">Connect</h4>
-          <div className="flex items-center gap-3">
-            <a href="https://github.com/NurmukhamedKZ" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg border border-border grid place-items-center text-muted-foreground hover:text-foreground hover:border-foreground transition-all duration-200" aria-label="GitHub">
-              <Icon icon="lucide:github" className="text-lg" />
-            </a>
-            <a href="https://x.com/Nurmukhamed_KZ" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg border border-border grid place-items-center text-muted-foreground hover:text-foreground hover:border-foreground transition-all duration-200" aria-label="Twitter">
-              <Icon icon="ri:twitter-x-fill" className="text-base" />
-            </a>
-            <a href="https://www.linkedin.com/company/otclickus/" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg border border-border grid place-items-center text-muted-foreground hover:text-foreground hover:border-foreground transition-all duration-200" aria-label="LinkedIn">
-              <Icon icon="lucide:linkedin" className="text-base" />
-            </a>
-          </div>
-          <div className="font-mono text-[11.5px] tracking-[0.06em] text-muted-foreground/70 mt-4 leading-[2]">
-            <div className="text-muted-foreground">Works on <b className="text-emerald-700 font-semibold">any company form</b> · <b class="text-emerald-700 font-semibold">any ATS</b></div>
-            <div>Q1clicks – 2026</div>
-            <div>Apply well, not often.</div>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-};
 
 // --- MAIN PAGE COMPONENT ---
 
-const OtclickGlassBoxAutofillForJobApplications: React.FC<{
-  darkMode: boolean;
-  onToggleTheme: () => void;
-}> = ({ darkMode, onToggleTheme }) => {
+const OtclickGlassBoxAutofillForJobApplications: React.FC = () => {
   const [activePipelineStage, setActivePipelineStage] = useState<number>(1);
   const [activeFaqIndex, setActiveFaqIndex] = useState<number | null>(0);
   const [isVideoPlaying, setIsVideoPlaying] = useState<boolean>(false);
@@ -1045,21 +926,15 @@ const OtclickGlassBoxAutofillForJobApplications: React.FC<{
   };
 
   return (
-    <div className="min-h-screen w-full bg-background text-foreground flex flex-col relative transition-colors duration-300">
-      <Navigation darkMode={darkMode} onToggleTheme={onToggleTheme} />
-      
-      <main className="flex-1">
-        <Hero isVideoPlaying={isVideoPlaying} onPlayVideo={playDemoVideo} />
-        <Marquee />
-        <PipelineTabs activeStage={activePipelineStage} onSelectStage={selectPipelineStage} />
-        <PlatformSurfaces />
-        <Pricing />
-        <FAQ activeFaqIndex={activeFaqIndex} onToggleFaq={toggleFaq} />
-        <CTASection />
-      </main>
-
-      <Footer />
-    </div>
+    <>
+      <Hero isVideoPlaying={isVideoPlaying} onPlayVideo={playDemoVideo} />
+      <Marquee />
+      <PipelineTabs activeStage={activePipelineStage} onSelectStage={selectPipelineStage} />
+      <PlatformSurfaces />
+      <Pricing />
+      <FAQ activeFaqIndex={activeFaqIndex} onToggleFaq={toggleFaq} />
+      <CTASection />
+    </>
   );
 };
 

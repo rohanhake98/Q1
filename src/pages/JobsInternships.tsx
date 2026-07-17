@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Icon } from '@iconify/react';
 import { Link } from 'react-router-dom';
-import { Navigation, Footer } from './OtclickGlassBoxAutofillForJobApplications';
+import Navbar from '../components/navbar/Navbar';
+import Footer from '../components/footer/Footer';
 
 // --- TYPES & INTERFACES ---
 interface Job {
@@ -121,10 +122,7 @@ const SAMPLE_JOBS: Job[] = [
   }
 ];
 
-const JobsInternships: React.FC<{
-  darkMode: boolean;
-  onToggleTheme: () => void;
-}> = ({ darkMode, onToggleTheme }) => {
+const JobsInternships: React.FC = () => {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedType, setSelectedType] = useState<string>('All');
@@ -173,10 +171,7 @@ const JobsInternships: React.FC<{
   };
 
   return (
-    <div className="min-h-screen w-full bg-background text-foreground flex flex-col relative transition-colors duration-300">
-      <Navigation darkMode={darkMode} onToggleTheme={onToggleTheme} />
-
-      <main className="flex-1 max-w-[1180px] w-full mx-auto px-6 md:px-8 py-10">
+    <div className="max-w-[1180px] w-full mx-auto px-6 md:px-8 py-10">
         
         {/* HEADER SECTION */}
         <div className="mb-10 text-left">
@@ -336,7 +331,6 @@ const JobsInternships: React.FC<{
           </div>
         )}
 
-      </main>
 
       {/* QUICK APPLY SIMULATION MODAL */}
       {activeJobForApply && (
@@ -473,7 +467,6 @@ const JobsInternships: React.FC<{
         </div>
       )}
 
-      <Footer />
     </div>
   );
 };
