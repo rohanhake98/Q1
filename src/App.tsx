@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 import MainLayout from './layouts/MainLayout';
 import OtclickGlassBoxAutofillForJobApplications from './pages/OtclickGlassBoxAutofillForJobApplications';
 import JobsInternships from './pages/JobsInternships';
@@ -11,6 +13,7 @@ import ResourceDetails from './pages/ResourceDetails';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Dashboard from './pages/admin/Dashboard';
+import Login from './pages/admin/Login';
 
 // Instantiate QueryClient for TanStack React Query caching
 const queryClient = new QueryClient({
@@ -54,31 +57,38 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
-        <Routes>
-          {/* Main site pages wrapped in MainLayout containing shared Navbar + Footer */}
-          <Route 
-            element={
-              <MainLayout 
-                darkMode={darkMode} 
-                onToggleTheme={toggleTheme} 
-              />
-            }
-          >
-            <Route path="/" element={<OtclickGlassBoxAutofillForJobApplications />} />
-            <Route path="/jobs" element={<JobsInternships />} />
-            <Route path="/jobs/:slug" element={<JobDetails />} />
-            <Route path="/company/:slug" element={<CompanyDetails />} />
-            <Route path="/blog/:slug" element={<BlogDetails />} />
-            <Route path="/resources/:slug" element={<ResourceDetails />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-          </Route>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            {/* Main site pages wrapped in MainLayout containing shared Navbar + Footer */}
+            <Route 
+              element={
+                <MainLayout 
+                  darkMode={darkMode} 
+                  onToggleTheme={toggleTheme} 
+                />
+              }
+            >
+              <Route path="/" element={<OtclickGlassBoxAutofillForJobApplications />} />
+              <Route path="/jobs" element={<JobsInternships />} />
+              <Route path="/jobs/:slug" element={<JobDetails />} />
+              <Route path="/company/:slug" element={<CompanyDetails />} />
+              <Route path="/blog/:slug" element={<BlogDetails />} />
+              <Route path="/resources/:slug" element={<ResourceDetails />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+            </Route>
 
-          {/* Admin Section (Independent Layout) */}
-          <Route path="/admin" element={<Dashboard />} />
-        </Routes>
-      </Router>
+            {/* Admin Authentication & Login */}
+            <Route path="/admin/login" element={<Login />} />
+
+            {/* Protected Admin Console */}
+            <Route element={<ProtectedAdminRoute />}>
+              <Route path="/admin" element={<Dashboard />} />
+            </Route>
+          </Routes>
+        </Router>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
