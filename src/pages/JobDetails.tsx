@@ -102,10 +102,7 @@ export default function JobDetails() {
   const [relatedJobs, setRelatedJobs] = useState<any[]>([]);
   const [companyDesc, setCompanyDesc] = useState<string | null>(null);
 
-  // Quick Apply Modal States
-  const [showApplyModal, setShowApplyModal] = useState(false);
-  const [applyStep, setApplyStep] = useState(0);
-  const [applied, setApplied] = useState(false);
+
 
   // Fetch related jobs and company description once job loads
   useEffect(() => {
@@ -196,26 +193,7 @@ export default function JobDetails() {
     aboutCompany: companyDesc || 'We are a fast-growing technology platform focused on building customer-centered applications and services.'
   };
 
-  const handleQuickApply = () => {
-    if (applied) return;
-    setShowApplyModal(true);
-    setApplyStep(1);
 
-    // Run progressive autofill simulation steps
-    setTimeout(() => {
-      setApplyStep(2); // Parsing profile
-      setTimeout(() => {
-        setApplyStep(3); // Generating answers
-        setTimeout(() => {
-          setApplyStep(4); // Form snapped
-          setTimeout(() => {
-            setApplyStep(5); // Completed
-            setApplied(true);
-          }, 1500);
-        }, 1200);
-      }, 1200);
-    }, 1000);
-  };
 
   return (
     <div className="max-w-[1100px] w-full mx-auto px-6 md:px-8 py-10">
@@ -262,18 +240,6 @@ export default function JobDetails() {
               <Icon icon="lucide:external-link" className="text-xs" />
             </a>
           )}
-          <button
-            onClick={handleQuickApply}
-            disabled={applied}
-            className={`inline-flex items-center justify-center font-semibold px-6 py-3 rounded-xl transition-all gap-2 text-sm whitespace-nowrap cursor-pointer ${
-              applied 
-                ? 'bg-primary/20 text-primary border border-primary/30 cursor-not-allowed'
-                : 'bg-foreground text-background hover:opacity-90 active:scale-[0.99]'
-            }`}
-          >
-            <Icon icon="lucide:zap" className="text-yellow-500 fill-current" />
-            {applied ? 'Autofill Complete' : 'Quick Apply AI'}
-          </button>
         </div>
       </div>
 
@@ -558,136 +524,6 @@ export default function JobDetails() {
         </div>
       )}
 
-      {/* QUICK APPLY SIMULATION MODAL */}
-      {showApplyModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-[fadeIn_0.2s_ease-out]">
-          <div className="bg-card border border-border/80 rounded-2xl w-full max-w-md p-6 shadow-2xl relative overflow-hidden transition-all duration-300 text-left">
-            
-            {/* Header */}
-            <div className="flex items-start justify-between gap-4 mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary text-white flex items-center justify-center font-bold text-base shadow-inner">
-                  {job.company_name ? job.company_name[0] : 'Q'}
-                </div>
-                <div>
-                  <h3 className="font-sans font-semibold text-base text-foreground m-0">
-                    Applying via Q1click
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {job.title} at {job.company_name}
-                  </p>
-                </div>
-              </div>
-              <button 
-                onClick={() => setShowApplyModal(false)}
-                className="w-7 h-7 rounded-full bg-muted border border-border/50 grid place-items-center hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-all cursor-pointer"
-              >
-                <Icon icon="lucide:x" className="text-sm" />
-              </button>
-            </div>
-
-            {/* Animation Steps */}
-            <div className="space-y-5">
-              
-              <div className="flex items-center gap-3">
-                <div className="flex-none w-6 h-6 rounded-full flex items-center justify-center">
-                  {applyStep >= 1 ? (
-                    applyStep > 1 ? (
-                      <Icon icon="lucide:check-circle" className="text-primary text-xl" />
-                    ) : (
-                      <Icon icon="line-md:loading-twotone-loop" className="text-primary text-xl" />
-                    )
-                  ) : (
-                    <span className="w-2.5 h-2.5 rounded-full bg-muted-foreground/30"></span>
-                  )}
-                </div>
-                <span className={`text-[13.5px] font-medium ${applyStep === 1 ? 'text-primary' : applyStep > 1 ? 'text-foreground/75' : 'text-muted-foreground'}`}>
-                  Connecting to {job.company_name} job portal...
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="flex-none w-6 h-6 rounded-full flex items-center justify-center">
-                  {applyStep >= 2 ? (
-                    applyStep > 2 ? (
-                      <Icon icon="lucide:check-circle" className="text-primary text-xl" />
-                    ) : (
-                      <Icon icon="line-md:loading-twotone-loop" className="text-primary text-xl" />
-                    )
-                  ) : (
-                    <span className="w-2.5 h-2.5 rounded-full bg-muted-foreground/30"></span>
-                  )}
-                </div>
-                <span className={`text-[13.5px] font-medium ${applyStep === 2 ? 'text-primary' : applyStep > 2 ? 'text-foreground/75' : 'text-muted-foreground'}`}>
-                  Retrieving your resume & cover story...
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="flex-none w-6 h-6 rounded-full flex items-center justify-center">
-                  {applyStep >= 3 ? (
-                    applyStep > 3 ? (
-                      <Icon icon="lucide:check-circle" className="text-primary text-xl" />
-                    ) : (
-                      <Icon icon="line-md:loading-twotone-loop" className="text-primary text-xl" />
-                    )
-                  ) : (
-                    <span className="w-2.5 h-2.5 rounded-full bg-muted-foreground/30"></span>
-                  )}
-                </div>
-                <span className={`text-[13.5px] font-medium ${applyStep === 3 ? 'text-primary' : applyStep > 3 ? 'text-foreground/75' : 'text-muted-foreground'}`}>
-                  Tailoring AI custom answers in your voice...
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="flex-none w-6 h-6 rounded-full flex items-center justify-center">
-                  {applyStep >= 4 ? (
-                    applyStep > 4 ? (
-                      <Icon icon="lucide:check-circle" className="text-primary text-xl" />
-                    ) : (
-                      <Icon icon="line-md:loading-twotone-loop" className="text-primary text-xl" />
-                    )
-                  ) : (
-                    <span className="w-2.5 h-2.5 rounded-full bg-muted-foreground/30"></span>
-                  )}
-                </div>
-                <span className={`text-[13.5px] font-medium ${applyStep === 4 ? 'text-primary' : applyStep > 4 ? 'text-foreground/75' : 'text-muted-foreground'}`}>
-                  Autofilling application form inputs...
-                </span>
-              </div>
-
-              {applyStep === 5 && (
-                <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 mt-6 animate-[scaleUp_0.3s_ease-out] text-center">
-                  <Icon icon="lucide:party-popper" className="text-primary text-3xl mx-auto mb-2" />
-                  <h4 className="font-semibold text-[15px] text-primary">Autofill Complete!</h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed mt-1">
-                    The extension has successfully filled all fields of the form in your browser. 
-                    <br/><strong>You review every field and click Submit.</strong>
-                  </p>
-                  <button 
-                    onClick={() => setShowApplyModal(false)}
-                    className="mt-4 bg-primary text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-primary/95 transition-all shadow-sm cursor-pointer"
-                  >
-                    Close & Review Form
-                  </button>
-                </div>
-              )}
-
-              {applyStep < 5 && (
-                <div className="w-full bg-muted rounded-full h-1.5 mt-8 overflow-hidden">
-                  <div 
-                    className="bg-primary h-full transition-all duration-1000 ease-out" 
-                    style={{ width: `${(applyStep / 4) * 100}%` }}
-                  ></div>
-                </div>
-              )}
-
-            </div>
-          </div>
-        </div>
-      )}
-
-    </div>
+</div>
   );
 }

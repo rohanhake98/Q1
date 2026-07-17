@@ -49,7 +49,7 @@ export const Navbar: React.FC<NavbarProps> = ({ darkMode, onToggleTheme }) => {
           </button>
 
           <a
-            className="inline-flex items-center justify-center font-medium tracking-[-0.01em] rounded-lg border cursor-pointer transition-all duration-250 ease-out whitespace-nowrap no-underline bg-foreground text-background border-transparent hover:-translate-y-0.5 hover:shadow-md px-[18px] py-2.5 text-sm gap-2.5"
+            className="inline-flex items-center justify-center font-semibold tracking-[-0.01em] rounded-lg border cursor-pointer transition-all duration-250 ease-out whitespace-nowrap no-underline bg-zinc-900 text-zinc-50 border-zinc-800 hover:bg-zinc-800 hover:-translate-y-0.5 hover:shadow-md px-[18px] py-2.5 text-sm gap-2.5 dark:bg-zinc-950 dark:text-zinc-50 dark:hover:bg-zinc-900"
             href="/#start"
           >
             Start free

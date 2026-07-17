@@ -215,20 +215,6 @@ const JobsInternships: React.FC = () => {
   return (
     <div className="max-w-[1180px] w-full mx-auto px-6 md:px-8 py-10">
       
-      {/* Fallback Banner for Mock Mode */}
-      {!hasDbJobs && !isLoading && (
-        <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-primary animate-[fadeIn_0.3s_ease-out] transition-colors">
-          <div className="flex items-center gap-2.5">
-            <Icon icon="lucide:info" className="text-lg flex-none" />
-            <span>
-              <strong>Demo Mode:</strong> Displaying mock opportunities. Setup your Supabase dashboard and insert job rows to pull live database listings.
-            </span>
-          </div>
-          <Link to="/admin" className="font-semibold underline hover:opacity-85 flex-none whitespace-nowrap">
-            Go to Admin Dashboard
-          </Link>
-        </div>
-      )}
 
       {/* HEADER SECTION */}
       <div className="mb-10 text-left">
