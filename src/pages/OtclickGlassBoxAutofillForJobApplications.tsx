@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Icon } from '@iconify/react';
+import { Link } from 'react-router-dom';
 
 // --- TYPES & INTERFACES ---
 
@@ -22,14 +23,14 @@ interface FaqItem {
 
 // --- HELPER SUB-COMPONENTS ---
 
-const Navigation: React.FC<{
+export const Navigation: React.FC<{
   darkMode: boolean;
   onToggleTheme: () => void;
 }> = ({ darkMode, onToggleTheme }) => {
   return (
     <nav className="bg-background text-foreground border-b border-border/80 backdrop-blur-md saturate-150 sticky top-0 z-50 transition-colors duration-300">
       <div className="max-w-[1180px] mx-auto px-8 py-4 flex items-center justify-between h-[75px]">
-        <a className="flex items-center gap-[11px] font-semibold text-[19px] tracking-[-0.02em] no-underline text-foreground" href="#top">
+        <Link className="flex items-center gap-[11px] font-semibold text-[19px] tracking-[-0.02em] no-underline text-foreground" to="/">
           <img
             alt="Q1clicks logo"
             width="30"
@@ -38,19 +39,22 @@ const Navigation: React.FC<{
             src="https://otclick.org/_next/image?url=%2Flogo.png&w=32&q=75"
           />
           Q1clicks
-        </a>
+        </Link>
 
         <div className="flex items-center gap-[30px]">
-          <a href="#how" className="hidden md:block text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">
+          <a href="/#how" className="hidden md:block text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">
             How it works
           </a>
-          <a href="#platforms" className="hidden md:block text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">
+          <Link to="/jobs" className="hidden md:block text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">
+            Jobs/Internship
+          </Link>
+          <a href="/#platforms" className="hidden md:block text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">
             Platforms
           </a>
-          <a href="#pricing" className="hidden md:block text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">
+          <a href="/#pricing" className="hidden md:block text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">
             Pricing
           </a>
-          <a href="#faq" className="hidden md:block text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">
+          <a href="/#faq" className="hidden md:block text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">
             FAQ
           </a>
 
@@ -65,7 +69,7 @@ const Navigation: React.FC<{
 
           <a
             className="inline-flex items-center justify-center font-medium tracking-[-0.01em] rounded-lg border cursor-pointer transition-all duration-250 ease-out whitespace-nowrap no-underline bg-foreground text-background border-transparent hover:-translate-y-0.5 hover:shadow-md px-[18px] py-2.5 text-sm gap-2.5"
-            href="#start"
+            href="/#start"
           >
             Start free
             <Icon icon="lucide:arrow-right" className="text-sm" />
@@ -955,7 +959,7 @@ const CTASection: React.FC = () => {
   );
 };
 
-const Footer: React.FC = () => {
+export const Footer: React.FC = () => {
   return (
     <footer className="py-14 pb-16 border-t border-border bg-background text-foreground transition-colors duration-300">
       <div className="max-w-[1180px] mx-auto px-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10">
@@ -970,27 +974,27 @@ const Footer: React.FC = () => {
         <div>
           <h4 className="font-mono text-[11px] tracking-[0.14em] uppercase text-muted-foreground/70 font-semibold mb-4">Product</h4>
           <ul className="flex flex-col gap-2.5">
-            <li><a href="#how" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">How it works</a></li>
-            <li><a href="#platforms" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">Platforms</a></li>
-            <li><a href="#pricing" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">Pricing</a></li>
-            <li><a href="#faq" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">FAQ</a></li>
+            <li><a href="/#how" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">How it works</a></li>
+            <li><a href="/#platforms" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">Platforms</a></li>
+            <li><a href="/#pricing" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">Pricing</a></li>
+            <li><a href="/#faq" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">FAQ</a></li>
           </ul>
         </div>
 
         <div>
           <h4 className="font-mono text-[11px] tracking-[0.14em] uppercase text-muted-foreground/70 font-semibold mb-4">Autofill by ATS</h4>
           <ul className="flex flex-col gap-2.5">
-            <li><a href="#platforms" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">Greenhouse autofill</a></li>
-            <li><a href="#platforms" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">Lever autofill</a></li>
-            <li><a href="#platforms" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">Ashby autofill</a></li>
+            <li><a href="/#platforms" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">Greenhouse autofill</a></li>
+            <li><a href="/#platforms" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">Lever autofill</a></li>
+            <li><a href="/#platforms" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">Ashby autofill</a></li>
           </ul>
         </div>
 
         <div>
           <h4 className="font-mono text-[11px] tracking-[0.14em] uppercase text-muted-foreground/70 font-semibold mb-4">Legal</h4>
           <ul className="flex flex-col gap-2.5">
-            <li><a href="#top" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">Privacy</a></li>
-            <li><a href="#top" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">Terms</a></li>
+            <li><a href="/#" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">Privacy</a></li>
+            <li><a href="/#" className="text-[14.5px] text-muted-foreground hover:text-foreground transition-colors duration-200 no-underline">Terms</a></li>
           </ul>
         </div>
 
@@ -1020,40 +1024,13 @@ const Footer: React.FC = () => {
 
 // --- MAIN PAGE COMPONENT ---
 
-const OtclickGlassBoxAutofillForJobApplications: React.FC = () => {
-  const [darkMode, setDarkMode] = useState<boolean>(false);
+const OtclickGlassBoxAutofillForJobApplications: React.FC<{
+  darkMode: boolean;
+  onToggleTheme: () => void;
+}> = ({ darkMode, onToggleTheme }) => {
   const [activePipelineStage, setActivePipelineStage] = useState<number>(1);
   const [activeFaqIndex, setActiveFaqIndex] = useState<number | null>(0);
   const [isVideoPlaying, setIsVideoPlaying] = useState<boolean>(false);
-
-  // Sync dark mode class with document element
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-      // Update CSS variables for dark mode
-      document.documentElement.style.setProperty('--background', '#121212');
-      document.documentElement.style.setProperty('--foreground', '#e5e5e5');
-      document.documentElement.style.setProperty('--muted', '#262626');
-      document.documentElement.style.setProperty('--muted-foreground', '#a3a3a3');
-      document.documentElement.style.setProperty('--card', '#1e1e1e');
-      document.documentElement.style.setProperty('--card-foreground', '#e5e5e5');
-      document.documentElement.style.setProperty('--border', '#047857');
-    } else {
-      document.documentElement.classList.remove('dark');
-      // Reset CSS variables for light mode
-      document.documentElement.style.setProperty('--background', '#f5f4f0');
-      document.documentElement.style.setProperty('--foreground', '#54534e');
-      document.documentElement.style.setProperty('--muted', '#ebeae6');
-      document.documentElement.style.setProperty('--muted-foreground', '#9c9b97');
-      document.documentElement.style.setProperty('--card', '#ffffff');
-      document.documentElement.style.setProperty('--card-foreground', '#54534e');
-      document.documentElement.style.setProperty('--border', '#059669');
-    }
-  }, [darkMode]);
-
-  const toggleTheme = () => {
-    setDarkMode(prev => !prev);
-  };
 
   const playDemoVideo = () => {
     setIsVideoPlaying(true);
@@ -1069,7 +1046,7 @@ const OtclickGlassBoxAutofillForJobApplications: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full bg-background text-foreground flex flex-col relative transition-colors duration-300">
-      <Navigation darkMode={darkMode} onToggleTheme={toggleTheme} />
+      <Navigation darkMode={darkMode} onToggleTheme={onToggleTheme} />
       
       <main className="flex-1">
         <Hero isVideoPlaying={isVideoPlaying} onPlayVideo={playDemoVideo} />
