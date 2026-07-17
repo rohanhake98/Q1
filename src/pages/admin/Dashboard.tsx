@@ -63,6 +63,7 @@ export default function Dashboard() {
     employment_type: 'internship',
     work_mode: 'remote',
     description: '',
+    summary: '',
     apply_url: '',
     tags: '',
     status: 'published',
@@ -241,6 +242,7 @@ export default function Dashboard() {
         employment_type: jobForm.employment_type,
         work_mode: jobForm.work_mode,
         description: jobForm.description,
+        summary: jobForm.summary || null,
         apply_url: jobForm.apply_url,
         tags: tagsArray,
         status: jobForm.status,
@@ -259,6 +261,7 @@ export default function Dashboard() {
         company_slug: '',
         job_slug: '',
         description: '',
+        summary: '',
         apply_url: '',
         tags: '',
         featured: false,
@@ -645,6 +648,20 @@ export default function Dashboard() {
                   value={jobForm.tags}
                   onChange={(e) => setJobForm(prev => ({ ...prev, tags: e.target.value }))}
                   className="w-full bg-background border border-border/80 focus:border-primary focus:ring-1 focus:ring-primary outline-none rounded-lg py-2 px-3 text-sm text-foreground"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono font-semibold uppercase text-muted-foreground mb-1.5">
+                  Short Summary (Max 180 chars. Generated automatically if empty)
+                </label>
+                <textarea
+                  rows={2}
+                  maxLength={180}
+                  placeholder="A brief summary for card preview..."
+                  value={jobForm.summary}
+                  onChange={(e) => setJobForm(prev => ({ ...prev, summary: e.target.value }))}
+                  className="w-full bg-background border border-border/80 focus:border-primary focus:ring-1 focus:ring-primary outline-none rounded-lg py-2 px-3 text-sm text-foreground resize-y"
                 />
               </div>
 

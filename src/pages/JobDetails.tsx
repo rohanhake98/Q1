@@ -1,21 +1,157 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 import { useJob } from '../hooks/useJobs';
+import { supabase } from '../services/supabase';
+
+// --- MOCK FALLBACK DATA FOR SAMPLE JOBS ---
+const MOCK_EXTRAS: Record<string, {
+  responsibilities: string[];
+  requirements: string[];
+  preferredSkills: string[];
+  benefits: string[];
+  education: string;
+  hiringProcess: string[];
+  applicationSteps: string[];
+  importantDates: { label: string; date: string }[];
+  aboutCompany: string;
+}> = {
+  'linear-frontend-intern': {
+    responsibilities: [
+      'Implement clean, accessible keyboard navigation controls for complex layout surfaces.',
+      'Refactor high-frequency UI interactions to optimize layout rendering times under 16ms.',
+      'Collaborate with product designers to build and refine components in our core Design System.',
+      'Write comprehensive unit and integration tests using Vitest and Testing Library.'
+    ],
+    requirements: [
+      'Strong proficiency in React, TypeScript, and semantic HTML5/CSS3.',
+      'Solid understanding of browser rendering pipelines, reflows, and performance profiling.',
+      'Experience building accessible web components conforming to WAI-ARIA standards.',
+      'A keen eye for layout composition, typography details, and micro-interactions.'
+    ],
+    preferredSkills: ['Next.js', 'TailwindCSS', 'Framer Motion', 'Web Accessibility (WCAG 2.1)'],
+    benefits: [
+      'Competitive intern stipend with equity grant potential.',
+      'Remote work allowance (covers home office desk, chair, and computer gear).',
+      'Flexible working hours and synchronous core collaboration time.',
+      'Direct mentorship from senior frontend staff and engineers.'
+    ],
+    education: 'Pursuing or recently completed BS/MS in Computer Science, HCI, or equivalent technical training.',
+    hiringProcess: [
+      'Step 1: Resume screening & portfolio review',
+      'Step 2: 45-minute technical screen (Live coding in React)',
+      'Step 3: 60-minute panel interview (System design & core web concepts)',
+      'Step 4: Chat with our Product Lead & offer'
+    ],
+    applicationSteps: [
+      '1. Review the requirements and upload your resume.',
+      '2. Complete the custom profile assessment via Q1click Autofill.',
+      '3. Submit application and wait 3-5 days for engineering review.'
+    ],
+    importantDates: [
+      { label: 'Applications Open', date: 'June 1, 2026' },
+      { label: 'Application Deadline', date: 'July 31, 2026' },
+      { label: 'Interviews Commencing', date: 'August 5, 2026' }
+    ],
+    aboutCompany: 'Linear builds tools that help teams plan and build products. Known for its speed, execution-focused design, and keyboard-first shortcuts, Linear is loved by software teams globally.'
+  },
+  'notion-software-intern': {
+    responsibilities: [
+      'Participate in the architectural design of real-time collaborative document synchronizers.',
+      'Construct performance evaluation frameworks to monitor document loading speeds.',
+      'Optimize database search index patterns inside PostgreSQL for workspace blocks.',
+      'Collaborate on public API endpoints for developers integrating with Notion pages.'
+    ],
+    requirements: [
+      'Solid foundation in algorithms, concurrency models, and data structure designs.',
+      'Experience writing servers using Node.js, Express, or fastify.',
+      'Good familiarity with relational databases and SQL query execution analysis.',
+      'Experience with WebSocket protocols or conflict-free replicated data types (CRDTs) is a huge plus.'
+    ],
+    preferredSkills: ['TypeScript', 'PostgreSQL', 'Redis', 'WebSockets', 'Rust'],
+    benefits: [
+      'Top-of-market hourly compensation ($50–$75/hr).',
+      'Complimentary chef-prepared lunches at the San Francisco headquarters.',
+      'Full health benefits coverage for the duration of the internship.',
+      'Commuter transit subsidy & gym membership allowances.'
+    ],
+    education: 'Currently enrolled in an undergraduate or graduate degree in Software Engineering, Maths, or related fields.',
+    hiringProcess: [
+      'Step 1: Resume vetting & automated coding puzzle',
+      'Step 2: 1-hour systems and concurrency interview',
+      'Step 3: Onsite loop (technical deep-dive & team match)',
+      'Step 4: Executive sponsor wrap-up'
+    ],
+    applicationSteps: [
+      '1. Click Apply Now to open Notion’s official Lever application.',
+      '2. Autofill form inputs using Q1click browser tools.',
+      '3. Check email for technical task instructions.'
+    ],
+    importantDates: [
+      { label: 'Applications Open', date: 'May 15, 2026' },
+      { label: 'Application Deadline', date: 'August 15, 2026' },
+      { label: 'Expected Start Date', date: 'September 1, 2026' }
+    ],
+    aboutCompany: 'Notion is a single space where you can think, write, and plan. It serves as an all-in-one workspace for notes, tasks, databases, and collaboration, powered by blocks.'
+  }
+};
 
 export default function JobDetails() {
   const { slug } = useParams<{ slug: string }>();
   const { data: job, isLoading, error } = useJob(slug || '');
+  const [relatedJobs, setRelatedJobs] = useState<any[]>([]);
+  const [companyDesc, setCompanyDesc] = useState<string | null>(null);
+
+  // Quick Apply Modal States
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  const [applyStep, setApplyStep] = useState(0);
+  const [applied, setApplied] = useState(false);
+
+  // Fetch related jobs and company description once job loads
+  useEffect(() => {
+    if (!job) return;
+
+    const fetchAdditionalData = async () => {
+      try {
+        // 1. Fetch related jobs (same category, excluding current)
+        const { data: relData } = await supabase
+          .from('jobs')
+          .select('id, title, job_slug, company_name, company_logo, location, employment_type, salary')
+          .eq('status', 'published')
+          .eq('category', job.category || 'Engineering')
+          .neq('id', job.id)
+          .limit(3);
+        if (relData) setRelatedJobs(relData);
+
+        // 2. Fetch company description if company exists
+        if (job.company_slug) {
+          const { data: compData } = await supabase
+            .from('companies')
+            .select('description')
+            .eq('slug', job.company_slug)
+            .single();
+          if (compData?.description) setCompanyDesc(compData.description);
+        }
+      } catch (err) {
+        console.error('Error fetching details metadata:', err);
+      }
+    };
+
+    fetchAdditionalData();
+  }, [job]);
 
   if (isLoading) {
     return (
-      <div className="max-w-[800px] mx-auto px-6 py-16 animate-pulse">
-        <div className="h-8 bg-muted rounded w-3/4 mb-4"></div>
-        <div className="h-4 bg-muted rounded w-1/4 mb-10"></div>
-        <div className="space-y-3">
-          <div className="h-4 bg-muted rounded w-full"></div>
-          <div className="h-4 bg-muted rounded w-full"></div>
-          <div className="h-4 bg-muted rounded w-5/6"></div>
+      <div className="max-w-[1100px] mx-auto px-6 py-16 animate-pulse space-y-8">
+        <div className="h-44 bg-muted rounded-2xl"></div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-4">
+            <div className="h-6 bg-muted rounded w-1/3"></div>
+            <div className="h-4 bg-muted rounded w-full"></div>
+            <div className="h-4 bg-muted rounded w-full"></div>
+            <div className="h-4 bg-muted rounded w-5/6"></div>
+          </div>
+          <div className="h-64 bg-muted rounded-xl"></div>
         </div>
       </div>
     );
@@ -34,103 +170,524 @@ export default function JobDetails() {
     );
   }
 
+  // Retrieve mock overrides or format from DB columns
+  const mockKey = job.job_slug || '';
+  const extras = MOCK_EXTRAS[mockKey] || {
+    responsibilities: job.responsibilities || [],
+    requirements: job.requirements || [],
+    preferredSkills: job.preferred_skills || [],
+    benefits: job.benefits || [],
+    education: job.education || 'Bachelor’s degree or equivalent experience.',
+    hiringProcess: [
+      'Step 1: Application submission and review',
+      'Step 2: Technical/Portfolio evaluation screen',
+      'Step 3: Onsite/Video panel panel loop',
+      'Step 4: Final offer formulation'
+    ],
+    applicationSteps: [
+      '1. Review roles and criteria description on this page.',
+      '2. Trigger AI Quick Apply to load application forms.',
+      '3. Verify values and click submit on target career platform.'
+    ],
+    importantDates: [
+      { label: 'Applications Open', date: 'Active' },
+      { label: 'Deadline', date: job.deadline ? new Date(job.deadline).toLocaleDateString(undefined, { dateStyle: 'medium' }) : 'Open until filled' }
+    ],
+    aboutCompany: companyDesc || 'We are a fast-growing technology platform focused on building customer-centered applications and services.'
+  };
+
+  const handleQuickApply = () => {
+    if (applied) return;
+    setShowApplyModal(true);
+    setApplyStep(1);
+
+    // Run progressive autofill simulation steps
+    setTimeout(() => {
+      setApplyStep(2); // Parsing profile
+      setTimeout(() => {
+        setApplyStep(3); // Generating answers
+        setTimeout(() => {
+          setApplyStep(4); // Form snapped
+          setTimeout(() => {
+            setApplyStep(5); // Completed
+            setApplied(true);
+          }, 1500);
+        }, 1200);
+      }, 1200);
+    }, 1000);
+  };
+
   return (
-    <div className="max-w-[800px] mx-auto px-6 py-12">
+    <div className="max-w-[1100px] w-full mx-auto px-6 md:px-8 py-10">
+      
       {/* Back button */}
-      <Link to="/jobs" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors">
+      <Link to="/jobs" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors no-underline">
         <Icon icon="lucide:arrow-left" />
-        Back to all jobs
+        Back to listings
       </Link>
 
-      {/* Header Info */}
-      <div className="border border-border/40 bg-card rounded-2xl p-6 md:p-8 shadow-sm mb-8 transition-colors">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-          <div className="flex items-start gap-4">
+      {/* HERO HEADER SECTION */}
+      <div className="bg-card border border-border/40 rounded-2xl p-6 md:p-8 shadow-sm mb-8 transition-colors flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="flex items-start gap-4">
+          {job.company_logo && job.company_logo.startsWith('http') ? (
+            <img 
+              src={job.company_logo} 
+              alt={`${job.company_name} logo`} 
+              className="w-16 h-16 rounded-2xl object-cover bg-muted border border-border/20 flex-none"
+            />
+          ) : (
             <div className="w-16 h-16 rounded-xl bg-primary text-white flex items-center justify-center font-bold text-2xl shadow-inner flex-none">
-              {job.company_name[0]}
+              {job.company_name ? job.company_name[0] : 'Q'}
             </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight m-0">{job.title}</h1>
-              <p className="text-base text-muted-foreground font-medium mt-1">{job.company_name}</p>
-            </div>
+          )}
+          <div>
+            <span className="text-xs font-mono uppercase bg-primary/10 text-primary border border-primary/20 px-2.5 py-0.5 rounded-full font-semibold">
+              {job.employment_type === 'full-time' ? 'Full Time' : job.employment_type === 'internship' ? 'Internship' : 'Co-op'}
+            </span>
+            <h1 className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight m-0 mt-2">{job.title}</h1>
+            <p className="text-base text-muted-foreground font-medium mt-1">{job.company_name}</p>
           </div>
-          <a
-            href={job.apply_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center bg-primary text-white font-semibold px-6 py-3 rounded-xl hover:-translate-y-0.5 hover:shadow-md transition-all gap-2 text-sm whitespace-nowrap"
+        </div>
+
+        {/* Action Widgets */}
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+          {job.apply_url && (
+            <a
+              href={job.apply_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center bg-primary text-white font-semibold px-6 py-3 rounded-xl hover:-translate-y-0.5 hover:shadow-md transition-all gap-2 text-sm whitespace-nowrap no-underline"
+            >
+              Apply Now
+              <Icon icon="lucide:external-link" className="text-xs" />
+            </a>
+          )}
+          <button
+            onClick={handleQuickApply}
+            disabled={applied}
+            className={`inline-flex items-center justify-center font-semibold px-6 py-3 rounded-xl transition-all gap-2 text-sm whitespace-nowrap cursor-pointer ${
+              applied 
+                ? 'bg-primary/20 text-primary border border-primary/30 cursor-not-allowed'
+                : 'bg-foreground text-background hover:opacity-90 active:scale-[0.99]'
+            }`}
           >
-            Apply Externally
-            <Icon icon="lucide:external-link" className="text-xs" />
-          </a>
-        </div>
-
-        {/* Info Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-border/30 mt-6 pt-6">
-          <div>
-            <span className="text-xs font-mono text-muted-foreground uppercase">Location</span>
-            <div className="text-[14.5px] font-medium mt-0.5 flex items-center gap-1">
-              <Icon icon="lucide:map-pin" className="text-primary text-xs" />
-              {job.location || 'Remote'}
-            </div>
-          </div>
-          <div>
-            <span className="text-xs font-mono text-muted-foreground uppercase">Job Type</span>
-            <div className="text-[14.5px] font-medium mt-0.5 capitalize">{job.employment_type || 'Full-time'}</div>
-          </div>
-          <div>
-            <span className="text-xs font-mono text-muted-foreground uppercase">Work Mode</span>
-            <div className="text-[14.5px] font-medium mt-0.5 capitalize">{job.work_mode || 'Remote'}</div>
-          </div>
-          <div>
-            <span className="text-xs font-mono text-muted-foreground uppercase">Salary Range</span>
-            <div className="text-[14.5px] font-medium mt-0.5">{job.salary || 'Not specified'}</div>
-          </div>
+            <Icon icon="lucide:zap" className="text-yellow-500 fill-current" />
+            {applied ? 'Autofill Complete' : 'Quick Apply AI'}
+          </button>
         </div>
       </div>
 
-      {/* Main Body */}
-      <div className="space-y-8">
-        <div>
-          <h2 className="text-lg font-semibold mb-3 border-b border-border/30 pb-2">Role Description</h2>
-          <p className="text-[15px] leading-relaxed text-muted-foreground/90 whitespace-pre-wrap">{job.description}</p>
+      {/* CORE CONTENT LAYOUT */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* LEFT COLUMN: CORE JOB DATA */}
+        <div className="lg:col-span-2 space-y-10 text-left">
+          
+          {/* 1. About Company */}
+          <section className="bg-card border border-border/40 rounded-2xl p-6 shadow-sm">
+            <h3 className="text-base font-semibold mb-4 m-0 border-b border-border/20 pb-3 flex items-center gap-2">
+              <Icon icon="lucide:building-2" className="text-primary" />
+              About Company
+            </h3>
+            <p className="text-[14.5px] leading-relaxed text-muted-foreground/90 whitespace-pre-wrap m-0">
+              {extras.aboutCompany}
+            </p>
+          </section>
+
+          {/* 2. Job Description */}
+          <section className="bg-card border border-border/40 rounded-2xl p-6 shadow-sm">
+            <h3 className="text-base font-semibold mb-4 m-0 border-b border-border/20 pb-3 flex items-center gap-2">
+              <Icon icon="lucide:file-text" className="text-primary" />
+              Job Description
+            </h3>
+            <p className="text-[14.5px] leading-relaxed text-muted-foreground/90 whitespace-pre-wrap m-0">
+              {job.description}
+            </p>
+          </section>
+
+          {/* 3. Responsibilities */}
+          {extras.responsibilities && extras.responsibilities.length > 0 && (
+            <section className="bg-card border border-border/40 rounded-2xl p-6 shadow-sm">
+              <h3 className="text-base font-semibold mb-4 m-0 border-b border-border/20 pb-3 flex items-center gap-2">
+                <Icon icon="lucide:list-todo" className="text-primary" />
+                Responsibilities
+              </h3>
+              <ul className="list-disc list-inside space-y-2.5 text-[14.5px] text-muted-foreground/90 pl-1 m-0">
+                {extras.responsibilities.map((resp: string, idx: number) => (
+                  <li key={idx} className="leading-relaxed">{resp}</li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {/* 4. Requirements */}
+          {extras.requirements && extras.requirements.length > 0 && (
+            <section className="bg-card border border-border/40 rounded-2xl p-6 shadow-sm">
+              <h3 className="text-base font-semibold mb-4 m-0 border-b border-border/20 pb-3 flex items-center gap-2">
+                <Icon icon="lucide:award" className="text-primary" />
+                Requirements
+              </h3>
+              <ul className="list-disc list-inside space-y-2.5 text-[14.5px] text-muted-foreground/90 pl-1 m-0">
+                {extras.requirements.map((req: string, idx: number) => (
+                  <li key={idx} className="leading-relaxed">{req}</li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {/* 5. Skills Section */}
+          {job.tags && job.tags.length > 0 && (
+            <section className="bg-card border border-border/40 rounded-2xl p-6 shadow-sm">
+              <h3 className="text-base font-semibold mb-4 m-0 border-b border-border/20 pb-3 flex items-center gap-2">
+                <Icon icon="lucide:check-square-2" className="text-primary" />
+                Required Skills
+              </h3>
+              <div className="flex flex-wrap gap-2 m-0">
+                {job.tags.map((tag: string) => (
+                  <span key={tag} className="text-xs font-mono bg-muted text-muted-foreground border border-border/20 px-3 py-1 rounded-full">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* 6. Preferred Skills */}
+          {extras.preferredSkills && extras.preferredSkills.length > 0 && (
+            <section className="bg-card border border-border/40 rounded-2xl p-6 shadow-sm">
+              <h3 className="text-base font-semibold mb-4 m-0 border-b border-border/20 pb-3 flex items-center gap-2">
+                <Icon icon="lucide:sparkles" className="text-primary" />
+                Preferred Skills
+              </h3>
+              <div className="flex flex-wrap gap-2 m-0">
+                {extras.preferredSkills.map((skill: string) => (
+                  <span key={skill} className="text-xs font-mono bg-primary/5 text-primary border border-primary/20 px-3 py-1 rounded-full font-semibold">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* 7. Benefits */}
+          {extras.benefits && extras.benefits.length > 0 && (
+            <section className="bg-card border border-border/40 rounded-2xl p-6 shadow-sm">
+              <h3 className="text-base font-semibold mb-4 m-0 border-b border-border/20 pb-3 flex items-center gap-2">
+                <Icon icon="lucide:heart-handshake" className="text-primary" />
+                Benefits & Perks
+              </h3>
+              <ul className="list-disc list-inside space-y-2.5 text-[14.5px] text-muted-foreground/90 pl-1 m-0">
+                {extras.benefits.map((benefit: string, idx: number) => (
+                  <li key={idx} className="leading-relaxed">{benefit}</li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {/* 8. Education */}
+          <section className="bg-card border border-border/40 rounded-2xl p-6 shadow-sm">
+            <h3 className="text-base font-semibold mb-4 m-0 border-b border-border/20 pb-3 flex items-center gap-2">
+              <Icon icon="lucide:graduation-cap" className="text-primary" />
+              Education
+            </h3>
+            <p className="text-[14.5px] leading-relaxed text-muted-foreground/90 m-0">
+              {extras.education}
+            </p>
+          </section>
+
+          {/* 9. Hiring Process */}
+          <section className="bg-card border border-border/40 rounded-2xl p-6 shadow-sm">
+            <h3 className="text-base font-semibold mb-4 m-0 border-b border-border/20 pb-3 flex items-center gap-2">
+              <Icon icon="lucide:git-commit" className="text-primary" />
+              Hiring Process
+            </h3>
+            <div className="space-y-4 m-0">
+              {extras.hiringProcess.map((step, idx) => (
+                <div key={idx} className="flex gap-3">
+                  <div className="flex-none w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-mono font-bold grid place-items-center mt-0.5">
+                    {idx + 1}
+                  </div>
+                  <span className="text-[14.5px] text-muted-foreground/90 font-medium">{step.substring(step.indexOf(':') + 1).trim()}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* 10. Application Steps */}
+          <section className="bg-card border border-border/40 rounded-2xl p-6 shadow-sm">
+            <h3 className="text-base font-semibold mb-4 m-0 border-b border-border/20 pb-3 flex items-center gap-2">
+              <Icon icon="lucide:arrow-right-circle" className="text-primary" />
+              Application Steps
+            </h3>
+            <div className="space-y-3 m-0">
+              {extras.applicationSteps.map((step, idx) => (
+                <p key={idx} className="text-[14.5px] text-muted-foreground/90 leading-relaxed m-0 font-medium">
+                  {step}
+                </p>
+              ))}
+            </div>
+          </section>
+
         </div>
 
-        {job.responsibilities && job.responsibilities.length > 0 && (
-          <div>
-            <h2 className="text-lg font-semibold mb-3 border-b border-border/30 pb-2">Key Responsibilities</h2>
-            <ul className="list-disc list-inside space-y-2 text-[15px] text-muted-foreground/90 pl-1">
-              {job.responsibilities.map((resp: string, idx: number) => (
-                <li key={idx}>{resp}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+        {/* RIGHT COLUMN: APPLICATION SPECS & GENERAL INFO */}
+        <div className="space-y-8 text-left">
+          
+          {/* Quick Specs card */}
+          <div className="bg-card border border-border/40 rounded-2xl p-6 shadow-sm space-y-5">
+            <h3 className="text-sm font-mono uppercase text-muted-foreground tracking-wider mb-2 border-b border-border/20 pb-2">
+              Quick Specifications
+            </h3>
+            
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <Icon icon="lucide:briefcase" className="text-primary text-lg" />
+                <div>
+                  <span className="text-xs text-muted-foreground block">Experience Requirement</span>
+                  <span className="text-sm font-semibold text-foreground">{job.experience || 'Not specified'}</span>
+                </div>
+              </div>
 
-        {job.requirements && job.requirements.length > 0 && (
-          <div>
-            <h2 className="text-lg font-semibold mb-3 border-b border-border/30 pb-2">Key Requirements</h2>
-            <ul className="list-disc list-inside space-y-2 text-[15px] text-muted-foreground/90 pl-1">
-              {job.requirements.map((req: string, idx: number) => (
-                <li key={idx}>{req}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+              <div className="flex items-center gap-3">
+                <Icon icon="lucide:map-pin" className="text-primary text-lg" />
+                <div>
+                  <span className="text-xs text-muted-foreground block">HQ Location</span>
+                  <span className="text-sm font-semibold text-foreground">{job.location || 'Remote'}</span>
+                </div>
+              </div>
 
-        {job.tags && job.tags.length > 0 && (
-          <div>
-            <h2 className="text-lg font-semibold mb-3 border-b border-border/30 pb-2">Target Skills & Tags</h2>
-            <div className="flex flex-wrap gap-1.5">
-              {job.tags.map((tag: string) => (
-                <span key={tag} className="text-xs font-mono bg-muted text-muted-foreground border border-border/20 px-3 py-1 rounded-full">
-                  {tag}
+              <div className="flex items-center gap-3">
+                <Icon icon="lucide:monitor" className="text-primary text-lg" />
+                <div>
+                  <span className="text-xs text-muted-foreground block">Work Mode</span>
+                  <span className="text-sm font-semibold text-foreground capitalize">{job.work_mode || 'Remote'}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <Icon icon="lucide:clock" className="text-primary text-lg" />
+                <div>
+                  <span className="text-xs text-muted-foreground block">Employment Type</span>
+                  <span className="text-sm font-semibold text-foreground capitalize">{job.employment_type || 'Full-time'}</span>
+                </div>
+              </div>
+
+              {job.salary && (
+                <div className="flex items-center gap-3">
+                  <Icon icon="lucide:indian-rupee" className="text-primary text-lg" />
+                  <div>
+                    <span className="text-xs text-muted-foreground block">Estimated Salary</span>
+                    <span className="text-sm font-semibold text-foreground">{job.salary}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Important Dates widget */}
+          <div className="bg-card border border-border/40 rounded-2xl p-6 shadow-sm space-y-4">
+            <h3 className="text-sm font-mono uppercase text-muted-foreground tracking-wider mb-2 border-b border-border/20 pb-2">
+              Important Dates
+            </h3>
+            <div className="space-y-3">
+              {extras.importantDates.map((date, idx) => (
+                <div key={idx} className="flex justify-between items-center text-xs">
+                  <span className="text-muted-foreground font-medium">{date.label}</span>
+                  <span className="font-semibold text-foreground">{date.date}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Company General Information Card */}
+          <div className="bg-card border border-border/40 rounded-2xl p-6 shadow-sm space-y-4">
+            <h3 className="text-sm font-mono uppercase text-muted-foreground tracking-wider mb-2 border-b border-border/20 pb-2">
+              Company Information
+            </h3>
+            <div className="space-y-2 text-xs text-muted-foreground">
+              <p><strong>HQ:</strong> {job.location || 'Remote'}</p>
+              <p><strong>Industry:</strong> Tech & Development</p>
+              {job.apply_url && (
+                <p>
+                  <strong>Website: </strong>
+                  <a 
+                    href={job.apply_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-primary hover:underline font-semibold"
+                  >
+                    Portal website
+                  </a>
+                </p>
+              )}
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* BOTTOM SECTION: RELATED OPPORTUNITIES */}
+      {relatedJobs.length > 0 && (
+        <div className="mt-16 border-t border-border/30 pt-12 text-left">
+          <h2 className="text-lg font-semibold mb-6 flex items-center gap-2 m-0">
+            <Icon icon="lucide:compass" className="text-primary" />
+            Related Opportunities
+          </h2>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {relatedJobs.map(rel => (
+              <Link 
+                key={rel.id} 
+                to={`/jobs/${rel.job_slug}`}
+                className="bg-card border border-border/40 hover:border-primary/50 hover:shadow-md rounded-xl p-5 transition-all duration-300 group no-underline text-left"
+              >
+                <h4 className="font-semibold text-[14.5px] text-foreground group-hover:text-primary transition-colors m-0">
+                  {rel.title}
+                </h4>
+                <p className="text-xs text-muted-foreground mt-1.5 font-medium m-0">{rel.company_name} · {rel.location}</p>
+                <div className="flex justify-between items-center mt-4">
+                  <span className="text-[10px] font-mono bg-muted text-muted-foreground px-2 py-0.5 rounded border border-border/20 uppercase font-semibold">
+                    {rel.employment_type === 'full-time' ? 'Full Time' : rel.employment_type === 'internship' ? 'Intern' : 'Co-op'}
+                  </span>
+                  <span className="text-[11.5px] font-mono text-primary font-semibold hover:underline">View details →</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* QUICK APPLY SIMULATION MODAL */}
+      {showApplyModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-[fadeIn_0.2s_ease-out]">
+          <div className="bg-card border border-border/80 rounded-2xl w-full max-w-md p-6 shadow-2xl relative overflow-hidden transition-all duration-300 text-left">
+            
+            {/* Header */}
+            <div className="flex items-start justify-between gap-4 mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-primary text-white flex items-center justify-center font-bold text-base shadow-inner">
+                  {job.company_name ? job.company_name[0] : 'Q'}
+                </div>
+                <div>
+                  <h3 className="font-sans font-semibold text-base text-foreground m-0">
+                    Applying via Q1click
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {job.title} at {job.company_name}
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowApplyModal(false)}
+                className="w-7 h-7 rounded-full bg-muted border border-border/50 grid place-items-center hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+              >
+                <Icon icon="lucide:x" className="text-sm" />
+              </button>
+            </div>
+
+            {/* Animation Steps */}
+            <div className="space-y-5">
+              
+              <div className="flex items-center gap-3">
+                <div className="flex-none w-6 h-6 rounded-full flex items-center justify-center">
+                  {applyStep >= 1 ? (
+                    applyStep > 1 ? (
+                      <Icon icon="lucide:check-circle" className="text-primary text-xl" />
+                    ) : (
+                      <Icon icon="line-md:loading-twotone-loop" className="text-primary text-xl" />
+                    )
+                  ) : (
+                    <span className="w-2.5 h-2.5 rounded-full bg-muted-foreground/30"></span>
+                  )}
+                </div>
+                <span className={`text-[13.5px] font-medium ${applyStep === 1 ? 'text-primary' : applyStep > 1 ? 'text-foreground/75' : 'text-muted-foreground'}`}>
+                  Connecting to {job.company_name} job portal...
                 </span>
-              ))}
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="flex-none w-6 h-6 rounded-full flex items-center justify-center">
+                  {applyStep >= 2 ? (
+                    applyStep > 2 ? (
+                      <Icon icon="lucide:check-circle" className="text-primary text-xl" />
+                    ) : (
+                      <Icon icon="line-md:loading-twotone-loop" className="text-primary text-xl" />
+                    )
+                  ) : (
+                    <span className="w-2.5 h-2.5 rounded-full bg-muted-foreground/30"></span>
+                  )}
+                </div>
+                <span className={`text-[13.5px] font-medium ${applyStep === 2 ? 'text-primary' : applyStep > 2 ? 'text-foreground/75' : 'text-muted-foreground'}`}>
+                  Retrieving your resume & cover story...
+                </span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="flex-none w-6 h-6 rounded-full flex items-center justify-center">
+                  {applyStep >= 3 ? (
+                    applyStep > 3 ? (
+                      <Icon icon="lucide:check-circle" className="text-primary text-xl" />
+                    ) : (
+                      <Icon icon="line-md:loading-twotone-loop" className="text-primary text-xl" />
+                    )
+                  ) : (
+                    <span className="w-2.5 h-2.5 rounded-full bg-muted-foreground/30"></span>
+                  )}
+                </div>
+                <span className={`text-[13.5px] font-medium ${applyStep === 3 ? 'text-primary' : applyStep > 3 ? 'text-foreground/75' : 'text-muted-foreground'}`}>
+                  Tailoring AI custom answers in your voice...
+                </span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="flex-none w-6 h-6 rounded-full flex items-center justify-center">
+                  {applyStep >= 4 ? (
+                    applyStep > 4 ? (
+                      <Icon icon="lucide:check-circle" className="text-primary text-xl" />
+                    ) : (
+                      <Icon icon="line-md:loading-twotone-loop" className="text-primary text-xl" />
+                    )
+                  ) : (
+                    <span className="w-2.5 h-2.5 rounded-full bg-muted-foreground/30"></span>
+                  )}
+                </div>
+                <span className={`text-[13.5px] font-medium ${applyStep === 4 ? 'text-primary' : applyStep > 4 ? 'text-foreground/75' : 'text-muted-foreground'}`}>
+                  Autofilling application form inputs...
+                </span>
+              </div>
+
+              {applyStep === 5 && (
+                <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 mt-6 animate-[scaleUp_0.3s_ease-out] text-center">
+                  <Icon icon="lucide:party-popper" className="text-primary text-3xl mx-auto mb-2" />
+                  <h4 className="font-semibold text-[15px] text-primary">Autofill Complete!</h4>
+                  <p className="text-xs text-muted-foreground leading-relaxed mt-1">
+                    The extension has successfully filled all fields of the form in your browser. 
+                    <br/><strong>You review every field and click Submit.</strong>
+                  </p>
+                  <button 
+                    onClick={() => setShowApplyModal(false)}
+                    className="mt-4 bg-primary text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-primary/95 transition-all shadow-sm cursor-pointer"
+                  >
+                    Close & Review Form
+                  </button>
+                </div>
+              )}
+
+              {applyStep < 5 && (
+                <div className="w-full bg-muted rounded-full h-1.5 mt-8 overflow-hidden">
+                  <div 
+                    className="bg-primary h-full transition-all duration-1000 ease-out" 
+                    style={{ width: `${(applyStep / 4) * 100}%` }}
+                  ></div>
+                </div>
+              )}
+
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
     </div>
   );
 }

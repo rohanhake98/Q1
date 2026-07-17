@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { Icon } from '@iconify/react';
 import { Link } from 'react-router-dom';
-import Navbar from '../components/navbar/Navbar';
-import Footer from '../components/footer/Footer';
 import { useSearchJobs } from '../hooks/useJobs';
 
 // --- TYPES & INTERFACES ---
@@ -13,13 +11,17 @@ interface Job {
   companyLogo: string;
   companyColor: string;
   location: string;
-  salary: string;
+  salary?: string;
   type: string;
   category: string;
   description: string;
+  summary?: string;
+  experience?: string;
+  workMode?: string;
+  deadline?: string;
   skills: string[];
   posted: string;
-  slug?: string;
+  slug: string;
   applyUrl?: string;
 }
 
@@ -35,10 +37,15 @@ const SAMPLE_JOBS: Job[] = [
     salary: '$45 - $65 / hr',
     type: 'Internship',
     category: 'Engineering',
+    experience: '0–1 Years',
+    workMode: 'Remote',
+    deadline: '31 July 2026',
     description: 'Work closely with our product engineers to build highly responsive, keyboard-navigable UI surfaces. Experience with React, TypeScript, and clean CSS styling is required.',
-    skills: ['React', 'TypeScript', 'Tailwind', 'CSS'],
-    posted: '2 days ago',
-    slug: 'linear-frontend-intern'
+    summary: 'Join Linear to build highly responsive, keyboard-navigable web apps with React and TypeScript.',
+    skills: ['React', 'TypeScript', 'Tailwind', 'CSS', 'Vite', 'HTML'],
+    posted: '2 hours ago',
+    slug: 'linear-frontend-intern',
+    applyUrl: 'https://linear.app/careers'
   },
   {
     id: '2',
@@ -50,10 +57,15 @@ const SAMPLE_JOBS: Job[] = [
     salary: '$50 - $75 / hr',
     type: 'Internship',
     category: 'Engineering',
+    experience: '0–1 Years',
+    workMode: 'On-site',
+    deadline: '15 August 2026',
     description: 'Help craft the future of wiki and documents. You will join one of our core product teams working on block editing performance and document collaboration systems.',
-    skills: ['React', 'TypeScript', 'Node.js', 'PostgreSQL'],
+    summary: 'Help Notion scale block editing performance and collaborative document editors.',
+    skills: ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'Redis'],
     posted: '1 day ago',
-    slug: 'notion-software-intern'
+    slug: 'notion-software-intern',
+    applyUrl: 'https://notion.so/careers'
   },
   {
     id: '3',
@@ -65,10 +77,15 @@ const SAMPLE_JOBS: Job[] = [
     salary: '$40 - $60 / hr',
     type: 'Internship',
     category: 'Design',
+    experience: '0–2 Years',
+    workMode: 'Hybrid',
+    deadline: '30 August 2026',
     description: 'Design the next generation of financial automation tools. You will collaborate on core workflows, building prototypes and conducting user interviews.',
-    skills: ['Figma', 'UI/UX', 'Prototyping', 'Product Strategy'],
+    summary: 'Work at Ramp on corporate card workflows, financial automation pipelines, and high-fidelity Figma prototypes.',
+    skills: ['Figma', 'UI/UX', 'Prototyping', 'User Research', 'Product Design'],
     posted: '3 days ago',
-    slug: 'ramp-design-intern'
+    slug: 'ramp-design-intern',
+    applyUrl: 'https://ramp.com/careers'
   },
   {
     id: '4',
@@ -80,10 +97,15 @@ const SAMPLE_JOBS: Job[] = [
     salary: '$145,000 - $185,000',
     type: 'Full-time',
     category: 'Engineering',
+    experience: '3+ Years',
+    workMode: 'Remote',
+    deadline: '10 September 2026',
     description: 'Scale payment infrastructure for millions of businesses. Work on billing APIs, subscription platforms, or dashboard features used by global companies.',
-    skills: ['Ruby', 'Java', 'React', 'REST APIs'],
+    summary: 'Scale Stripe billing APIs and multi-tenant payment systems for millions of businesses.',
+    skills: ['Ruby', 'Java', 'React', 'REST APIs', 'SQL', 'Docker', 'AWS'],
     posted: 'Just now',
-    slug: 'stripe-full-stack'
+    slug: 'stripe-full-stack',
+    applyUrl: 'https://stripe.com/careers'
   },
   {
     id: '5',
@@ -95,40 +117,15 @@ const SAMPLE_JOBS: Job[] = [
     salary: '$80 - $100 / hr',
     type: 'Internship',
     category: 'Engineering',
+    experience: '0–1 Years',
+    workMode: 'Hybrid',
+    deadline: '15 July 2026',
     description: 'Support the training and deployment of large language models. Develop evaluation frameworks, optimize inference speeds, and construct custom data pipelines.',
-    skills: ['Python', 'PyTorch', 'Transformers', 'CUDA'],
+    summary: 'Train large language models, construct data ingestion pipelines, and build ML evaluation frameworks.',
+    skills: ['Python', 'PyTorch', 'Transformers', 'CUDA', 'Docker', 'C++'],
     posted: '5 days ago',
-    slug: 'openai-research-intern'
-  },
-  {
-    id: '6',
-    title: 'Developer Relations Intern',
-    company: 'Vercel',
-    companyLogo: 'V',
-    companyColor: 'bg-zinc-900',
-    location: 'Remote · US',
-    salary: '$35 - $55 / hr',
-    type: 'Internship',
-    category: 'Marketing',
-    description: 'Create educational content, sample applications, and documentation to help web developers deploy and scale using Next.js and the Vercel Platform.',
-    skills: ['Next.js', 'React', 'Technical Writing', 'Public Speaking'],
-    posted: '1 week ago',
-    slug: 'vercel-devrel-intern'
-  },
-  {
-    id: '7',
-    title: 'Associate Product Manager',
-    company: 'Figma',
-    companyLogo: 'F',
-    companyColor: 'bg-rose-500',
-    location: 'San Francisco, CA (Hybrid)',
-    salary: '$110,000 - $140,000',
-    type: 'Full-time',
-    category: 'Product',
-    description: 'Drive the feature roadmap for our collaborative multiplayer system. Write specifications, define metrics, and run scrum sprint planning cycles.',
-    skills: ['Agile', 'Product Specs', 'Data Analytics', 'UX Design'],
-    posted: '4 days ago',
-    slug: 'figma-apm'
+    slug: 'openai-research-intern',
+    applyUrl: 'https://openai.com/careers'
   }
 ];
 
@@ -136,11 +133,6 @@ const JobsInternships: React.FC = () => {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedType, setSelectedType] = useState<string>('All');
-  
-  // Quick Apply Modal & Animation state
-  const [activeJobForApply, setActiveJobForApply] = useState<Job | null>(null);
-  const [applyStep, setApplyStep] = useState<number>(0);
-  const [appliedJobs, setAppliedJobs] = useState<Record<string, boolean>>({});
 
   const categories = ['All', 'Engineering', 'Design', 'Product', 'Marketing'];
   const types = ['All', 'Internship', 'Full-time'];
@@ -152,7 +144,7 @@ const JobsInternships: React.FC = () => {
     employmentType: selectedType === 'All' ? undefined : selectedType,
   };
 
-  // Run infinite query from React Query / Supabase
+  // Run query
   const {
     data,
     isLoading,
@@ -182,7 +174,6 @@ const JobsInternships: React.FC = () => {
   const jobsToDisplay: Job[] = rawJobsList.map(job => {
     const isDb = 'job_slug' in job;
     if (isDb) {
-      // Map Supabase SQL columns to UI properties
       return {
         id: job.id,
         title: job.title,
@@ -190,10 +181,14 @@ const JobsInternships: React.FC = () => {
         companyLogo: job.company_logo || (job.company_name ? job.company_name[0] : 'Q'),
         companyColor: 'bg-primary',
         location: job.location || 'Remote',
-        salary: job.salary || 'Not specified',
-        type: job.employment_type === 'full-time' ? 'Full-time' : job.employment_type === 'internship' ? 'Internship' : 'Co-op',
+        salary: job.salary && job.salary !== 'Not specified' ? job.salary : undefined,
+        type: job.employment_type === 'full-time' ? 'Full Time' : job.employment_type === 'internship' ? 'Internship' : 'Co-op',
         category: job.category || 'Engineering',
         description: job.description || '',
+        summary: job.summary || undefined,
+        experience: job.experience || 'Not specified',
+        workMode: job.work_mode ? job.work_mode.charAt(0).toUpperCase() + job.work_mode.slice(1) : 'Remote',
+        deadline: job.deadline || undefined,
         skills: job.tags || [],
         posted: job.created_at 
           ? new Date(job.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })
@@ -202,35 +197,19 @@ const JobsInternships: React.FC = () => {
         applyUrl: job.apply_url
       };
     } else {
-      // Use fallback properties
       return job as Job;
     }
   });
 
-  const handleQuickApply = (job: Job) => {
-    if (appliedJobs[job.id]) return;
-    setActiveJobForApply(job);
-    setApplyStep(1);
-
-    // Run progressive autofill simulation steps
-    setTimeout(() => {
-      setApplyStep(2); // Parsing profile
-      setTimeout(() => {
-        setApplyStep(3); // Generating answers
-        setTimeout(() => {
-          setApplyStep(4); // Form snapped
-          setTimeout(() => {
-            setApplyStep(5); // Completed
-            setAppliedJobs(prev => ({ ...prev, [job.id]: true }));
-          }, 1500);
-        }, 1200);
-      }, 1200);
-    }, 1000);
-  };
-
-  const closeApplyModal = () => {
-    setActiveJobForApply(null);
-    setApplyStep(0);
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return '';
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      return d.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' });
+    } catch {
+      return dateStr;
+    }
   };
 
   return (
@@ -255,13 +234,13 @@ const JobsInternships: React.FC = () => {
       <div className="mb-10 text-left">
         <span className="inline-flex items-center gap-2 font-mono text-xs font-semibold tracking-[0.18em] uppercase text-primary mb-3">
           <span className="w-2 h-2 rounded-full bg-primary flex-none animate-pulse"></span>
-          Live Job Postings
+          Live Opportunities
         </span>
         <h1 className="font-sans font-semibold text-[clamp(28px,4vw,48px)] leading-[1.1] tracking-[-0.03em] m-0 text-foreground">
           Explore Active Jobs & <span className="font-serif italic font-medium text-primary">Internships</span>
         </h1>
         <p className="text-[15px] leading-[1.5] text-muted-foreground/90 max-w-[640px] mt-3">
-          Apply to hot opportunities across top tech companies using Q1click. Let our AI autofill your applications in your own browser with customized details.
+          Find curated career opportunities and leverage AI assistance to craft top-tier application forms directly in your browser.
         </p>
       </div>
 
@@ -344,81 +323,114 @@ const JobsInternships: React.FC = () => {
           ))}
         </div>
       ) : jobsToDisplay.length > 0 ? (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {jobsToDisplay.map(job => (
-              <div 
-                key={job.id} 
-                className="bg-card border border-border/40 hover:border-primary/50 rounded-xl p-6 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md flex flex-col h-full group"
-              >
-                {/* Upper row: Logo & Header */}
-                <div className="flex items-start gap-4">
-                  <div className={`w-12 h-12 rounded-lg ${job.companyColor || 'bg-primary'} text-white flex items-center justify-center font-bold text-lg shadow-inner flex-none`}>
-                    {job.companyLogo || (job.company ? job.company[0] : 'Q')}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-sans font-semibold text-[17px] text-foreground tracking-tight m-0 group-hover:text-primary transition-colors">
-                      <Link to={`/jobs/${job.slug || job.id}`} className="hover:text-primary transition-colors">
-                        {job.title}
-                      </Link>
-                    </h3>
-                    <div className="text-[13.5px] text-muted-foreground font-medium mt-1 flex items-center gap-1.5">
-                      <span>{job.company}</span>
-                      <span>·</span>
-                      <span>{job.location}</span>
+        <div>
+          {/* Card list layout */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+            {jobsToDisplay.map(job => {
+              // Generate summary preview (max 180 chars, fallback to description truncate)
+              const summaryText = job.summary || 
+                (job.description ? job.description.slice(0, 180) + (job.description.length > 180 ? '...' : '') : '');
+
+              const displayedSkills = job.skills.slice(0, 4);
+              const remainingSkillsCount = job.skills.length - displayedSkills.length;
+
+              return (
+                <Link 
+                  key={job.id} 
+                  to={`/jobs/${job.slug}`}
+                  className="bg-card border border-border/40 rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:border-primary/50 hover:-translate-y-1 flex flex-col justify-between cursor-pointer h-full group text-left no-underline select-none"
+                >
+                  <div className="space-y-4">
+                    {/* Header */}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        {/* Company Logo override */}
+                        {job.companyLogo.startsWith('http') ? (
+                          <img 
+                            src={job.companyLogo} 
+                            alt={`${job.company} logo`}
+                            className="w-10 h-10 rounded-lg object-cover bg-muted border border-border/20 flex-none"
+                          />
+                        ) : (
+                          <div className={`w-10 h-10 rounded-lg ${job.companyColor || 'bg-primary'} text-white flex items-center justify-center font-bold text-base shadow-inner flex-none`}>
+                            {job.companyLogo || job.company[0]}
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-xs text-muted-foreground font-semibold m-0">{job.company}</p>
+                          <h3 className="font-sans font-semibold text-[16px] text-foreground tracking-tight m-0 mt-0.5 group-hover:text-primary transition-colors">
+                            {job.title}
+                          </h3>
+                        </div>
+                      </div>
+                      <span className="text-[11.5px] text-muted-foreground/60 font-mono flex-none">{job.posted}</span>
                     </div>
-                  </div>
-                </div>
 
-                {/* Description */}
-                <p className="text-[14px] leading-[1.5] text-muted-foreground/90 mt-4 flex-1">
-                  {job.description}
-                </p>
+                    {/* Basic specs Row */}
+                    <div className="flex flex-wrap gap-x-3 gap-y-1.5 text-xs text-muted-foreground font-medium pt-0.5 border-t border-border/20 pt-3">
+                      <div className="flex items-center gap-1">
+                        <Icon icon="lucide:briefcase" className="text-muted-foreground/80 text-[13px]" />
+                        <span>{job.experience}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Icon icon="lucide:map-pin" className="text-muted-foreground/80 text-[13px]" />
+                        <span>{job.location}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Icon icon="lucide:monitor" className="text-muted-foreground/80 text-[13px]" />
+                        <span>{job.workMode}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Icon icon="lucide:clock" className="text-muted-foreground/80 text-[13px]" />
+                        <span>{job.type}</span>
+                      </div>
+                    </div>
 
-                {/* Skills/Badges */}
-                <div className="flex flex-wrap gap-1.5 mt-4">
-                  <span className="text-[10px] font-mono tracking-wider uppercase bg-primary/10 text-primary border border-primary/20 px-2.5 py-0.5 rounded-full font-semibold">
-                    {job.type}
-                  </span>
-                  {job.skills.map(skill => (
-                    <span 
-                      key={skill}
-                      className="text-[10px] font-mono tracking-wider bg-muted text-muted-foreground px-2.5 py-0.5 rounded-full border border-border/20"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Bottom line: Posted date and Apply Button */}
-                <div className="h-px bg-border/30 mt-5 mb-4"></div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[12.5px] text-muted-foreground/60 font-mono">
-                    {job.posted}
-                  </span>
-                  <button
-                    onClick={() => handleQuickApply(job)}
-                    className={`inline-flex items-center justify-center font-semibold text-[13px] tracking-[-0.01em] rounded-lg cursor-pointer transition-all duration-200 px-4 py-2 gap-2 shadow-sm ${
-                      appliedJobs[job.id]
-                        ? 'bg-primary/20 text-primary border border-primary/30'
-                        : 'bg-foreground text-background border border-transparent hover:-translate-y-0.5 hover:shadow-md'
-                    }`}
-                  >
-                    {appliedJobs[job.id] ? (
-                      <>
-                        <Icon icon="lucide:check" className="text-sm" />
-                        Applied
-                      </>
-                    ) : (
-                      <>
-                        <Icon icon="lucide:zap" className="text-sm text-yellow-500 fill-current" />
-                        Quick Apply
-                      </>
+                    {/* Salary (if available) */}
+                    {job.salary && (
+                      <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-xs font-semibold">
+                        <Icon icon="lucide:indian-rupee" className="text-[12px] -mt-0.5" />
+                        <span>{job.salary}</span>
+                      </div>
                     )}
-                  </button>
-                </div>
-              </div>
-            ))}
+
+                    {/* Short Summary Description (max 3 clamped lines) */}
+                    <p className="text-[13.5px] leading-relaxed text-muted-foreground/80 line-clamp-3 m-0">
+                      {summaryText}
+                    </p>
+                  </div>
+
+                  <div className="space-y-4 mt-6">
+                    {/* Skills Badge Row (Single row, no-wrap, first 4-6 then +N more) */}
+                    <div className="flex items-center justify-between gap-3 overflow-hidden border-t border-border/20 pt-4">
+                      <div className="flex items-center gap-1.5 overflow-hidden whitespace-nowrap">
+                        {displayedSkills.map(skill => (
+                          <span 
+                            key={skill}
+                            className="text-[10px] font-mono tracking-wider bg-muted text-muted-foreground px-2 py-0.5 rounded border border-border/20 flex-none"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                        {remainingSkillsCount > 0 && (
+                          <span className="text-[10px] font-mono font-bold text-primary flex-none bg-primary/5 px-2 py-0.5 rounded border border-primary/10">
+                            +{remainingSkillsCount} More
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Deadline block if available */}
+                    {job.deadline && (
+                      <div className="flex items-center gap-1.5 text-[11.5px] text-muted-foreground/60 font-mono">
+                        <Icon icon="lucide:calendar-clock" />
+                        <span>Apply Before {formatDate(job.deadline)}</span>
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
           </div>
 
           {/* Load More Button for Live Supabase Mode */}
@@ -440,7 +452,7 @@ const JobsInternships: React.FC = () => {
               </button>
             </div>
           )}
-        </>
+        </div>
       ) : (
         <div className="bg-card border border-dashed border-border rounded-xl p-12 text-center shadow-sm">
           <Icon icon="lucide:briefcase-alert" className="text-[48px] text-muted-foreground/60 mx-auto" />
@@ -448,141 +460,6 @@ const JobsInternships: React.FC = () => {
           <p className="text-sm text-muted-foreground max-w-sm mx-auto">
             We couldn't find any matches for your current filters. Try adjusting your search term or category.
           </p>
-        </div>
-      )}
-
-      {/* QUICK APPLY SIMULATION MODAL */}
-      {activeJobForApply && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-[fadeIn_0.2s_ease-out]">
-          <div className="bg-card border border-border/80 rounded-2xl w-full max-w-md p-6 shadow-2xl relative overflow-hidden transition-all duration-300">
-            {/* Modal header */}
-            <div className="flex items-start justify-between gap-4 mb-6">
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-lg ${activeJobForApply.companyColor || 'bg-primary'} text-white flex items-center justify-center font-bold text-base shadow-inner`}>
-                  {activeJobForApply.companyLogo || (activeJobForApply.company ? activeJobForApply.company[0] : 'Q')}
-                </div>
-                <div>
-                  <h3 className="font-sans font-semibold text-base text-foreground m-0">
-                    Applying via Q1click
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {activeJobForApply.title} at {activeJobForApply.company}
-                  </p>
-                </div>
-              </div>
-              <button 
-                onClick={closeApplyModal}
-                className="w-7 h-7 rounded-full bg-muted border border-border/50 grid place-items-center hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-all cursor-pointer"
-              >
-                <Icon icon="lucide:x" className="text-sm" />
-              </button>
-            </div>
-
-            {/* Animation / Progress State */}
-            <div className="space-y-5">
-              
-              {/* Step 1: Connecting to ATS */}
-              <div className="flex items-center gap-3">
-                <div className="flex-none w-6 h-6 rounded-full flex items-center justify-center">
-                  {applyStep >= 1 ? (
-                    applyStep > 1 ? (
-                      <Icon icon="lucide:check-circle" className="text-primary text-xl" />
-                    ) : (
-                      <Icon icon="line-md:loading-twotone-loop" className="text-primary text-xl" />
-                    )
-                  ) : (
-                    <span className="w-2.5 h-2.5 rounded-full bg-muted-foreground/30"></span>
-                  )}
-                </div>
-                <span className={`text-[13.5px] font-medium ${applyStep === 1 ? 'text-primary' : applyStep > 1 ? 'text-foreground/75' : 'text-muted-foreground'}`}>
-                  Connecting to {activeJobForApply.company} job portal...
-                </span>
-              </div>
-
-              {/* Step 2: Parsing Profile */}
-              <div className="flex items-center gap-3">
-                <div className="flex-none w-6 h-6 rounded-full flex items-center justify-center">
-                  {applyStep >= 2 ? (
-                    applyStep > 2 ? (
-                      <Icon icon="lucide:check-circle" className="text-primary text-xl" />
-                    ) : (
-                      <Icon icon="line-md:loading-twotone-loop" className="text-primary text-xl" />
-                    )
-                  ) : (
-                    <span className="w-2.5 h-2.5 rounded-full bg-muted-foreground/30"></span>
-                  )}
-                </div>
-                <span className={`text-[13.5px] font-medium ${applyStep === 2 ? 'text-primary' : applyStep > 2 ? 'text-foreground/75' : 'text-muted-foreground'}`}>
-                  Retrieving your resume & cover story...
-                </span>
-              </div>
-
-              {/* Step 3: Generating answers */}
-              <div className="flex items-center gap-3">
-                <div className="flex-none w-6 h-6 rounded-full flex items-center justify-center">
-                  {applyStep >= 3 ? (
-                    applyStep > 3 ? (
-                      <Icon icon="lucide:check-circle" className="text-primary text-xl" />
-                    ) : (
-                      <Icon icon="line-md:loading-twotone-loop" className="text-primary text-xl" />
-                    )
-                  ) : (
-                    <span className="w-2.5 h-2.5 rounded-full bg-muted-foreground/30"></span>
-                  )}
-                </div>
-                <span className={`text-[13.5px] font-medium ${applyStep === 3 ? 'text-primary' : applyStep > 3 ? 'text-foreground/75' : 'text-muted-foreground'}`}>
-                  Tailoring AI custom answers in your voice...
-                </span>
-              </div>
-
-              {/* Step 4: Autofill Page snap */}
-              <div className="flex items-center gap-3">
-                <div className="flex-none w-6 h-6 rounded-full flex items-center justify-center">
-                  {applyStep >= 4 ? (
-                    applyStep > 4 ? (
-                      <Icon icon="lucide:check-circle" className="text-primary text-xl" />
-                    ) : (
-                      <Icon icon="line-md:loading-twotone-loop" className="text-primary text-xl" />
-                    )
-                  ) : (
-                    <span className="w-2.5 h-2.5 rounded-full bg-muted-foreground/30"></span>
-                  )}
-                </div>
-                <span className={`text-[13.5px] font-medium ${applyStep === 4 ? 'text-primary' : applyStep > 4 ? 'text-foreground/75' : 'text-muted-foreground'}`}>
-                  Autofilling application form inputs...
-                </span>
-              </div>
-
-              {/* Step 5: Success screen */}
-              {applyStep === 5 && (
-                <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 mt-6 animate-[scaleUp_0.3s_ease-out] text-center">
-                  <Icon icon="lucide:party-popper" className="text-primary text-3xl mx-auto mb-2" />
-                  <h4 className="font-semibold text-[15px] text-primary">Autofill Complete!</h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed mt-1">
-                    The extension has successfully filled all fields of the form in your browser. 
-                    <br/><strong>You review every field and click Submit.</strong>
-                  </p>
-                  <button 
-                    onClick={closeApplyModal}
-                    className="mt-4 bg-primary text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-primary/95 transition-all shadow-sm cursor-pointer"
-                  >
-                    Close & Review Form
-                  </button>
-                </div>
-              )}
-
-              {/* Progress bar */}
-              {applyStep < 5 && (
-                <div className="w-full bg-muted rounded-full h-1.5 mt-8 overflow-hidden">
-                  <div 
-                    className="bg-primary h-full transition-all duration-1000 ease-out" 
-                    style={{ width: `${(applyStep / 4) * 100}%` }}
-                  ></div>
-                </div>
-              )}
-
-            </div>
-          </div>
         </div>
       )}
 

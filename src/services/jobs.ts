@@ -66,7 +66,7 @@ export async function getFeaturedJobs() {
 export async function searchJobs(filters: JobFilters, page: number) {
   let query = supabase
     .from('jobs')
-    .select('*', { count: 'exact' })
+    .select('id, job_slug, title, company_name, company_logo, location, experience, salary, summary, description, tags, created_at, employment_type, work_mode, deadline', { count: 'exact' })
     .eq('status', 'published');
 
   if (filters.search) {
