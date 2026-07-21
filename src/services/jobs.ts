@@ -1,5 +1,48 @@
 import { supabase } from './supabase';
 
+export interface JobItem {
+  id: string;
+  title: string;
+  company_name: string;
+  company_slug: string;
+  job_slug: string;
+  job_hash?: string;
+  experience?: string;
+  location?: string;
+  salary?: string;
+  employment_type?: 'full-time' | 'part-time' | 'internship' | 'contract';
+  work_mode?: 'remote' | 'onsite' | 'hybrid';
+  description: string;
+  summary?: string;
+  responsibilities?: string[];
+  requirements?: string[];
+  preferred_skills?: string[];
+  benefits?: string[];
+  education?: string;
+  apply_url: string;
+  company_logo?: string;
+  banner_image?: string;
+  status: 'draft' | 'published' | 'archived';
+  featured?: boolean;
+  deadline?: string;
+  tags?: string[];
+  ai_score?: number;
+  category?: string;
+  source_url?: string;
+  last_seen_at?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface JobSourceItem {
+  id: string;
+  source: string;
+  url: string;
+  raw_payload?: string;
+  processed: boolean;
+  created_at?: string;
+}
+
 export interface JobFilters {
   search?: string;
   location?: string;
@@ -7,6 +50,7 @@ export interface JobFilters {
   employmentType?: string;
   category?: string;
   skills?: string[];
+  minAiScore?: number;
 }
 
 export async function getJobBySlug(slug: string) {
